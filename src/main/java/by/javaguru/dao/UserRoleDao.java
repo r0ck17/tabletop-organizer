@@ -54,10 +54,10 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
             ResultSet generatedKeys = statement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
-                UserRole role = new UserRole();
-                role.setRole(generatedKeys.getString("role"));
-                role.setId(generatedKeys.getInt("id"));
-                return role;
+                return UserRole.builder()
+                        .role(generatedKeys.getString("role"))
+                        .id(generatedKeys.getInt("id"))
+                        .build();
             }
 
             return null;
@@ -96,10 +96,10 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                UserRole role = new UserRole();
-                role.setId(resultSet.getInt("id"));
-                role.setRole(resultSet.getString("role"));
-                return Optional.of(role);
+                return Optional.of(UserRole.builder()
+                        .role(resultSet.getString("role"))
+                        .id(resultSet.getInt("id"))
+                        .build());
             }
 
             return Optional.empty();
@@ -113,12 +113,13 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
         try (Statement statement = connection.createStatement()) {
             List<UserRole> roles = new ArrayList<>();
 
-            ResultSet resultSet = statement.executeQuery(FIND_BY_ID_SQL);
+            ResultSet resultSet = statement.executeQuery(FIND_ALL_SQL);
 
             while (resultSet.next()) {
-                UserRole role = new UserRole();
-                role.setId(resultSet.getInt("id"));
-                role.setRole(resultSet.getString("role"));
+                UserRole role = UserRole.builder()
+                        .role(resultSet.getString("role"))
+                        .id(resultSet.getInt("id"))
+                        .build();
 
                 roles.add(role);
             }
