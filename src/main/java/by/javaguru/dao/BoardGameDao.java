@@ -36,6 +36,20 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
             FROM boardgame
             """;
 
+    private final String FIND_GAMES_BY_USER_ID_SQL = """
+            SELECT g.name as name,
+                   g.year as year,
+                   g.language as language,
+                   g.publisher as publisher,
+                   g.min_players as min_players,
+                   g.max_players as max_players,
+                   g.price as price
+            FROM user_boardgame u
+                     JOIN boardgame g ON u.boardgame_id = g.id
+            WHERE user_id = ?
+            ORDER BY name;
+            """;
+
     private final String FIND_BY_ID_SQL = FIND_ALL_SQL + "WHERE id = ?";
 
     private BoardGameDao() {
@@ -122,7 +136,7 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
         try (Statement statement = connection.createStatement()) {
             List<BoardGame> boardGames = new ArrayList<>();
 
-            ResultSet resultSet = statement.executeQuery(FIND_BY_ID_SQL);
+            ResultSet resultSet = statement.executeQuery(FIND_ALL_SQL);
 
             while (resultSet.next()) {
                 boardGames.add(getBoardGameFromResultSet(resultSet));
@@ -134,17 +148,32 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
         }
     }
 
+    public List<BoardGame> findUserGamesById(Long userId) {
+        try (PreparedStatement statement = connection.prepareStatement(FIND_GAMES_BY_USER_ID_SQL)) {
+            statement.setLong(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            List<BoardGame> games = new ArrayList<>();
+
+            while (resultSet.next()) {
+                BoardGame boardGame = getBoardGameFromResultSet(resultSet);
+                games.add(boardGame);
+            }
+
+            return games;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static BoardGame getBoardGameFromResultSet(ResultSet resultSet) throws SQLException {
-        BoardGame boardgame = new BoardGame();
-
-        boardgame.setName(resultSet.getString("name"));
-        boardgame.setPrice(resultSet.getInt("price"));
-        boardgame.setYear(resultSet.getShort("year"));
-        boardgame.setLanguage(resultSet.getString("language"));
-        boardgame.setPublisher(resultSet.getString("publisher"));
-        boardgame.setMinPlayers(resultSet.getShort("min_players"));
-        boardgame.setMinPlayers(resultSet.getShort("max_players"));
-
-        return boardgame;
+        return BoardGame.builder()
+                .name(resultSet.getString("name"))
+                .price(resultSet.getInt("price"))
+                .year(resultSet.getShort("year"))
+                .language(resultSet.getString("language"))
+                .publisher(resultSet.getString("publisher"))
+                .minPlayers(resultSet.getShort("min_players"))
+                .maxPlayers(resultSet.getShort("max_players"))
+                .build();
     }
 }
