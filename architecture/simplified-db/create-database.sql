@@ -13,7 +13,7 @@ CREATE TABLE user_role
 CREATE TABLE users
 (
     id       bigserial PRIMARY KEY,
-    login    varchar(128) NOT NULL,
+    login    varchar(128) NOT NULL UNIQUE,
     password varchar(128) NOT NULL,
     name     varchar(128) NOT NULL,
     role_id  int REFERENCES user_role (id)
@@ -32,7 +32,7 @@ CREATE TABLE boardgame
     max_players smallint     NOT NULL
 );
 
--- Таблица m2m "Настольные игры пользователей"
+-- Таблица "Настольные игры пользователей"
 CREATE TABLE user_boardgame
 (
     user_id      bigint REFERENCES users (id),
