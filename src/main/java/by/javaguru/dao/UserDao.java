@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class UserDao implements Dao<Integer, User> {
     private final Connection connection = ConnectionManager.open();
-    private static UserDao INSTANCE = new UserDao();
+    private static final UserDao INSTANCE = new UserDao();
     private final String SAVE_SQL = """
             INSERT INTO users (login, password, name, role_id)
             VALUES (?, ?, ?, ?)
@@ -25,18 +25,29 @@ public class UserDao implements Dao<Integer, User> {
             login = ?, password = ?, name = ?, role_id = ?
             WHERE id = ?
             """;
-
     private final String DELETE_SQL = """
             DELETE FROM users
             WHERE id = ?
             """;
-
     private final String FIND_ALL_SQL = """
             SELECT id, login, password, name, role_id
             FROM users
             """;
-
     private final String FIND_BY_ID_SQL = FIND_ALL_SQL + "WHERE id = ?";
+    private static final String GET_BY_EMAIL_AND_PASSWORD_SQL = """
+            SELECT id, login, password, name, role_id
+            FROM users
+            WHERE
+            login = ? AND password = ?
+            """;
+    private final String SAVE_GAME_TO_USER_SQL = """
+            INSERT INTO user_boardgame (user_id, boardgame_id)
+            VALUES (?, ?)
+            """;
+    private final String DELETE_GAME_FROM_USER_SQL = """
+            DELETE FROM user_boardgame
+            WHERE user_id = ? AND boardgame_id = ?
+            """;
 
     private UserDao() {
     }
@@ -115,7 +126,7 @@ public class UserDao implements Dao<Integer, User> {
         try (Statement statement = connection.createStatement()) {
             List<User> users = new ArrayList<>();
 
-            ResultSet resultSet = statement.executeQuery(FIND_BY_ID_SQL);
+            ResultSet resultSet = statement.executeQuery(FIND_ALL_SQL);
 
             while (resultSet.next()) {
                 users.add(getUserFromResultSet(resultSet));
@@ -127,15 +138,53 @@ public class UserDao implements Dao<Integer, User> {
         }
     }
 
-    private static User getUserFromResultSet(ResultSet resultSet) throws SQLException {
-        User user = new User();
+    public Optional<User> getUserByEmailAndPassword(String email, String password) {
+        try (PreparedStatement statement = connection.prepareStatement(GET_BY_EMAIL_AND_PASSWORD_SQL)) {
+            statement.setString(1, email);
+            statement.setString(2, password);
 
-        user.setId(resultSet.getLong("id"));
-        user.setLogin(resultSet.getString("login"));
-        user.setPassword(resultSet.getString("password"));
-        user.setName(resultSet.getString("name"));
-        user.setRoleId(resultSet.getInt("role_id"));
+            ResultSet resultSet = statement.executeQuery();
+            User user = null;
 
-        return user;
+            if (resultSet.next()) {
+                user = getUserFromResultSet(resultSet);
+            }
+
+            return Optional.ofNullable(user);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean addGameToUser(User user, Long boardgameId) {
+        try (PreparedStatement statement = connection.prepareStatement(SAVE_GAME_TO_USER_SQL)) {
+            statement.setLong(1, user.getId());
+            statement.setLong(2, boardgameId);
+
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean deleteGameFromUser(User user, Long boardgameId) {
+        try (PreparedStatement statement = connection.prepareStatement(DELETE_GAME_FROM_USER_SQL)) {
+            statement.setLong(1, user.getId());
+            statement.setLong(2, boardgameId);
+
+            return statement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private User getUserFromResultSet(ResultSet resultSet) throws SQLException {
+        return User.builder()
+                .id(resultSet.getLong("id"))
+                .login(resultSet.getString("login"))
+                .password(resultSet.getString("password"))
+                .name(resultSet.getString("name"))
+                .roleId(resultSet.getInt("role_id"))
+                .build();
     }
 }
