@@ -10,6 +10,10 @@ public final class ConnectionManager {
     private static final String PASSWORD_KEY = "db.password";
     private static Connection connection;
 
+    static {
+        loadDriver();
+    }
+
     private ConnectionManager() {
     }
 
@@ -32,6 +36,14 @@ public final class ConnectionManager {
         try {
             connection.close();
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void loadDriver() {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
