@@ -1,56 +1,22 @@
 package by.javaguru.dao;
 
 import by.javaguru.entity.BoardGame;
-import by.javaguru.util.ConnectionManager;
+import by.javaguru.exception.DaoException;
+import by.javaguru.validator.HibernateUtil;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class BoardGameDao implements Dao<Long, BoardGame> {
-    private final Connection connection = ConnectionManager.open();
+    private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
     private static BoardGameDao INSTANCE = new BoardGameDao();
-    private final String SAVE_SQL = """
-            INSERT INTO boardgame (name, price, year, language, publisher, min_players, max_players)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
-    private final String UPDATE_SQL = """
-            UPDATE boardgame
-            SET
-            name = ?, price = ?, year = ?, language = ?, publisher = ?, min_players = ?, max_players = ?
-            WHERE id = ?
-            """;
-
-    private final String DELETE_SQL = """
-            DELETE FROM boardgame
-            WHERE id = ?
-            """;
-
-    private final String FIND_ALL_SQL = """
-            SELECT id, name, price, year, language, publisher, min_players, max_players
-            FROM boardgame
-            """;
-
-    private final String FIND_GAMES_BY_USER_ID_SQL = """
-            SELECT g.name as name,
-                   g.year as year,
-                   g.language as language,
-                   g.publisher as publisher,
-                   g.min_players as min_players,
-                   g.max_players as max_players,
-                   g.price as price
-            FROM user_boardgame u
-                     JOIN boardgame g ON u.boardgame_id = g.id
-            WHERE user_id = ?
-            ORDER BY name;
-            """;
-
-    private final String FIND_BY_ID_SQL = FIND_ALL_SQL + "WHERE id = ?";
 
     private BoardGameDao() {
     }
@@ -61,107 +27,90 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
 
     @Override
     public BoardGame save(BoardGame boardgame) {
-        try (PreparedStatement statement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, boardgame.getName());
-            statement.setInt(2, boardgame.getPrice());
-            statement.setShort(3, boardgame.getYear());
-            statement.setString(4, boardgame.getLanguage());
-            statement.setString(5, boardgame.getPublisher());
-            statement.setShort(6, boardgame.getMaxPlayers());
-            statement.setShort(7, boardgame.getMaxPlayers());
-
-            statement.executeUpdate();
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-
-            if (generatedKeys.next()) {
-                boardgame.setId(generatedKeys.getLong("id"));
-                return boardgame;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            session.persist(boardgame);
+            transaction.commit();
+            return boardgame;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
-
-            return null;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException(e);
         }
     }
 
     @Override
     public boolean update(BoardGame boardgame) {
-        try (PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
-            statement.setString(1, boardgame.getName());
-            statement.setInt(2, boardgame.getPrice());
-            statement.setShort(3, boardgame.getYear());
-            statement.setString(4, boardgame.getLanguage());
-            statement.setString(5, boardgame.getPublisher());
-            statement.setShort(6, boardgame.getMaxPlayers());
-            statement.setShort(7, boardgame.getMaxPlayers());
-
-            statement.setLong(8, boardgame.getId());
-
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            session.merge(boardgame);
+            transaction.commit();
+            return true;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
         }
     }
 
     @Override
     public boolean delete(Long id) {
-        try (PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
-            statement.setLong(1, id);
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            BoardGame boardGame = session.get(BoardGame.class, id);
+            session.remove(boardGame);
+            transaction.commit();
 
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return true;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
         }
     }
 
     @Override
     public Optional<BoardGame> findById(Long id) {
-        try (PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_SQL)) {
-            statement.setLong(1, id);
-            ResultSet resultSet = statement.executeQuery();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            BoardGame boardGame = session.get(BoardGame.class, id);
+            session.getTransaction().commit();
 
-            if (resultSet.next()) {
-                BoardGame boardGame = getBoardGameFromResultSet(resultSet);
-                return Optional.of(boardGame);
-            }
-
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return Optional.ofNullable(boardGame);
+        } catch (HibernateException e) {
+            throw new DaoException(e);
         }
     }
 
     @Override
     public List<BoardGame> findAll() {
-        try (Statement statement = connection.createStatement()) {
-            List<BoardGame> boardGames = new ArrayList<>();
-
-            ResultSet resultSet = statement.executeQuery(FIND_ALL_SQL);
-
-            while (resultSet.next()) {
-                boardGames.add(getBoardGameFromResultSet(resultSet));
-            }
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            List<BoardGame> boardGames = session.createQuery("from BoardGame", BoardGame.class).getResultList();
+            session.getTransaction().commit();
 
             return boardGames;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (HibernateException e) {
+            throw new DaoException(e);
         }
     }
 
     public List<BoardGame> findUserGamesById(Long userId) {
-        try (PreparedStatement statement = connection.prepareStatement(FIND_GAMES_BY_USER_ID_SQL)) {
-            statement.setLong(1, userId);
-            ResultSet resultSet = statement.executeQuery();
-            List<BoardGame> games = new ArrayList<>();
-
-            while (resultSet.next()) {
-                BoardGame boardGame = getBoardGameFromResultSet(resultSet);
-                games.add(boardGame);
-            }
-
-            return games;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            Query<BoardGame> query = session.createQuery("SELECT BG from BoardGame BG where BG.id = :id ", BoardGame.class);
+            query.setParameter("id", userId);
+            List<BoardGame> resultList = query.getResultList();
+            session.getTransaction().commit();
+            return resultList;
+        } catch (HibernateException e) {
+            throw new DaoException(e);
         }
     }
 

@@ -1,42 +1,19 @@
 package by.javaguru.dao;
 
 import by.javaguru.entity.UserRole;
-import by.javaguru.util.ConnectionManager;
+import by.javaguru.exception.DaoException;
+import by.javaguru.validator.HibernateUtil;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class UserRoleDao implements Dao<Integer, UserRole> {
-    private final Connection connection = ConnectionManager.open();
+    private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
     private static UserRoleDao INSTANCE = new UserRoleDao();
-    private final String SAVE_SQL = """
-            INSERT INTO user_role (role)
-            VALUES (?)
-            """;
-    private final String UPDATE_SQL = """
-            UPDATE user_role
-            SET
-            role = ?
-            WHERE id = ?
-            """;
-
-    private final String DELETE_SQL = """
-            DELETE FROM user_role
-            WHERE id = ?
-            """;
-
-    private final String FIND_ALL_SQL = """
-            SELECT id, role
-            FROM user_role
-            """;
-
-    private final String FIND_BY_ID_SQL = FIND_ALL_SQL + "WHERE id = ?";
 
     private UserRoleDao() {
     }
@@ -47,86 +24,79 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
 
     @Override
     public UserRole save(UserRole userRole) {
-        try (PreparedStatement statement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, userRole.getRole());
+        Transaction transaction = null;
 
-            statement.executeUpdate();
-            ResultSet generatedKeys = statement.getGeneratedKeys();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            session.persist(userRole);
+            transaction.commit();
 
-            if (generatedKeys.next()) {
-                return UserRole.builder()
-                        .role(generatedKeys.getString("role"))
-                        .id(generatedKeys.getInt("id"))
-                        .build();
+            return userRole;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
-
-            return null;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException(e);
         }
     }
 
     @Override
-    public boolean update(UserRole entity) {
-        try (PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
-            statement.setString(1, entity.getRole());
-            statement.setInt(2, entity.getId());
-
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public boolean update(UserRole userRole) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            session.merge(userRole);
+            transaction.commit();
+            return true;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
         }
     }
 
     @Override
     public boolean delete(Integer id) {
-        try (PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
-            statement.setInt(1, id);
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            UserRole role = session.get(UserRole.class, id);
+            session.remove(role);
+            transaction.commit();
 
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return true;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
         }
     }
 
     @Override
     public Optional<UserRole> findById(Integer id) {
-        try (PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_SQL)) {
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            UserRole userRole = session.get(UserRole.class, id);
+            session.getTransaction().commit();
 
-            if (resultSet.next()) {
-                return Optional.of(UserRole.builder()
-                        .role(resultSet.getString("role"))
-                        .id(resultSet.getInt("id"))
-                        .build());
-            }
-
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return Optional.ofNullable(userRole);
+        } catch (HibernateException e) {
+            throw new DaoException(e);
         }
     }
 
     @Override
     public List<UserRole> findAll() {
-        try (Statement statement = connection.createStatement()) {
-            List<UserRole> roles = new ArrayList<>();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            List<UserRole> tickets = session.createQuery("from UserRole", UserRole.class).getResultList();
+            session.getTransaction().commit();
 
-            ResultSet resultSet = statement.executeQuery(FIND_ALL_SQL);
-
-            while (resultSet.next()) {
-                UserRole role = UserRole.builder()
-                        .role(resultSet.getString("role"))
-                        .id(resultSet.getInt("id"))
-                        .build();
-
-                roles.add(role);
-            }
-
-            return roles;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return tickets;
+        } catch (HibernateException e) {
+            throw new DaoException(e);
         }
     }
 }

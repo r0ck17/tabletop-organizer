@@ -1,53 +1,20 @@
 package by.javaguru.dao;
 
 import by.javaguru.entity.User;
-import by.javaguru.util.ConnectionManager;
+import by.javaguru.exception.DaoException;
+import by.javaguru.validator.HibernateUtil;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class UserDao implements Dao<Integer, User> {
-    private final Connection connection = ConnectionManager.open();
+    private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
     private static final UserDao INSTANCE = new UserDao();
-    private final String SAVE_SQL = """
-            INSERT INTO users (login, password, name, role_id)
-            VALUES (?, ?, ?, ?)
-            """;
-    private final String UPDATE_SQL = """
-            UPDATE users
-            SET
-            login = ?, password = ?, name = ?, role_id = ?
-            WHERE id = ?
-            """;
-    private final String DELETE_SQL = """
-            DELETE FROM users
-            WHERE id = ?
-            """;
-    private final String FIND_ALL_SQL = """
-            SELECT id, login, password, name, role_id
-            FROM users
-            """;
-    private final String FIND_BY_ID_SQL = FIND_ALL_SQL + "WHERE id = ?";
-    private static final String GET_BY_EMAIL_AND_PASSWORD_SQL = """
-            SELECT id, login, password, name, role_id
-            FROM users
-            WHERE
-            login = ? AND password = ?
-            """;
-    private final String SAVE_GAME_TO_USER_SQL = """
-            INSERT INTO user_boardgame (user_id, boardgame_id)
-            VALUES (?, ?)
-            """;
-    private final String DELETE_GAME_FROM_USER_SQL = """
-            DELETE FROM user_boardgame
-            WHERE user_id = ? AND boardgame_id = ?
-            """;
 
     private UserDao() {
     }
@@ -58,133 +25,103 @@ public class UserDao implements Dao<Integer, User> {
 
     @Override
     public User save(User user) {
-        try (PreparedStatement statement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            statement.setString(1, user.getLogin());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, user.getName());
-            statement.setInt(4, user.getRoleId());
-
-            statement.executeUpdate();
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-
-            if (generatedKeys.next()) {
-                user.setId(generatedKeys.getLong("id"));
-                return user;
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            session.persist(user);
+            transaction.commit();
+            return user;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
-
-            return null;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DaoException(e);
         }
     }
 
     @Override
     public boolean update(User user) {
-        try (PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)) {
-            statement.setString(1, user.getLogin());
-            statement.setString(2, user.getPassword());
-            statement.setString(3, user.getName());
-            statement.setInt(4, user.getRoleId());
-            statement.setLong(5, user.getId());
-
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            session.merge(user);
+            transaction.commit();
+            return true;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
         }
     }
 
     @Override
     public boolean delete(Integer id) {
-        try (PreparedStatement statement = connection.prepareStatement(DELETE_SQL)) {
-            statement.setInt(1, id);
+        Transaction transaction = null;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, id);
+            session.remove(user);
+            transaction.commit();
 
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return true;
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new DaoException(e);
         }
     }
 
     @Override
     public Optional<User> findById(Integer id) {
-        try (PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_SQL)) {
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            User user = session.get(User.class, id);
+            session.getTransaction().commit();
 
-            if (resultSet.next()) {
-                User user = getUserFromResultSet(resultSet);
-                return Optional.of(user);
-            }
-
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return Optional.ofNullable(user);
+        } catch (HibernateException e) {
+            throw new DaoException(e);
         }
     }
 
     @Override
     public List<User> findAll() {
-        try (Statement statement = connection.createStatement()) {
-            List<User> users = new ArrayList<>();
-
-            ResultSet resultSet = statement.executeQuery(FIND_ALL_SQL);
-
-            while (resultSet.next()) {
-                users.add(getUserFromResultSet(resultSet));
-            }
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            List<User> users = session.createQuery("from User", User.class).getResultList();
+            session.getTransaction().commit();
 
             return users;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (HibernateException e) {
+            throw new DaoException(e);
         }
     }
 
     public Optional<User> getUserByEmailAndPassword(String email, String password) {
-        try (PreparedStatement statement = connection.prepareStatement(GET_BY_EMAIL_AND_PASSWORD_SQL)) {
-            statement.setString(1, email);
-            statement.setString(2, password);
+        Query<User> query;
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            query = session.createQuery("from User U where U.login =: email " +
+                                        "AND U.password = : password", User.class);
+            query.setParameter("email", email);
+            query.setParameter("password", password);
 
-            ResultSet resultSet = statement.executeQuery();
-            User user = null;
+            User user = query.getResultList().stream().findFirst().orElse(null);
+            Optional<User> result = Optional.ofNullable(user);
+            session.getTransaction().commit();
 
-            if (resultSet.next()) {
-                user = getUserFromResultSet(resultSet);
-            }
-
-            return Optional.ofNullable(user);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return result; // TODO : check exception
         }
     }
 
     public boolean addGameToUser(User user, Long boardgameId) {
-        try (PreparedStatement statement = connection.prepareStatement(SAVE_GAME_TO_USER_SQL)) {
-            statement.setLong(1, user.getId());
-            statement.setLong(2, boardgameId);
-
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return false;
     }
 
     public boolean deleteGameFromUser(User user, Long boardgameId) {
-        try (PreparedStatement statement = connection.prepareStatement(DELETE_GAME_FROM_USER_SQL)) {
-            statement.setLong(1, user.getId());
-            statement.setLong(2, boardgameId);
-
-            return statement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return false;
     }
 
-    private User getUserFromResultSet(ResultSet resultSet) throws SQLException {
-        return User.builder()
-                .id(resultSet.getLong("id"))
-                .login(resultSet.getString("login"))
-                .password(resultSet.getString("password"))
-                .name(resultSet.getString("name"))
-                .roleId(resultSet.getInt("role_id"))
-                .build();
-    }
 }
