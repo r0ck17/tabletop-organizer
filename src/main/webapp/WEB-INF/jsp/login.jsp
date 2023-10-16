@@ -8,7 +8,7 @@
 <form method="post" action="${pageContext.request.contextPath}/login">
     <label for="login">Email</label>
     <input type="text" name="email" id="login" value="${param.email}" required><br>
-    <label for="password" l>Пароль</label>
+    <label for="password">Пароль</label>
     <input type="password" name="password" id="password" required><br>
     <c:if test="${param.error != null}">
         <div style="color: red">
@@ -20,5 +20,7 @@
 <a href="${pageContext.request.contextPath}/registration">
     <button type="button">Регистрация</button>
 </a>
+<br/>
+<a href="${pageContext.request.contextPath}/games">Список всех игр</a>
 </body>
 </html>

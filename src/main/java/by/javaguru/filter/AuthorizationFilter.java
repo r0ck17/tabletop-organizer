@@ -12,12 +12,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
 
+import static by.javaguru.util.UrlPath.GAMES;
 import static by.javaguru.util.UrlPath.LOGIN;
 import static by.javaguru.util.UrlPath.REGISTRATION;
 
 @WebFilter("/*")
 public class AuthorizationFilter implements Filter {
-    private static final Set<String> PUBLIC_PATH = Set.of(LOGIN, REGISTRATION);
+    private static final Set<String> PUBLIC_PATH = Set.of(LOGIN, REGISTRATION, GAMES);
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
