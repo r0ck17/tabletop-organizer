@@ -4,6 +4,8 @@ import by.javaguru.dao.UserDao;
 import by.javaguru.dto.CreateUserDto;
 import by.javaguru.dto.UserDto;
 import by.javaguru.entity.User;
+import by.javaguru.entity.UserRole;
+import by.javaguru.entity.UserRoleType;
 import by.javaguru.exception.ValidationException;
 import by.javaguru.mapper.CreateUserMapper;
 import by.javaguru.mapper.UserMapper;
@@ -34,6 +36,7 @@ public class UserService {
         }
         
         User user = createUserMapper.mapFrom(createUserDto);
+        user.setUserRole(new UserRole(1, UserRoleType.USER)); // TODO : fix hardcode
         User savedUser = userDao.save(user);
 
         return savedUser.getId();

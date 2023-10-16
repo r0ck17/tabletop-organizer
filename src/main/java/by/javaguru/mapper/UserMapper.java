@@ -19,7 +19,7 @@ public class UserMapper implements Mapper<User, UserDto> {
                 .id(object.getId())
                 .name(object.getName())
                 .login(object.getLogin())
-                //.roleId(object.getRoleId())
+                .userRole(object.getUserRole())
                 .build();
     }
 }

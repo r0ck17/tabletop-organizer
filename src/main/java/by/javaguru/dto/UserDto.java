@@ -1,5 +1,6 @@
 package by.javaguru.dto;
 
+import by.javaguru.entity.UserRole;
 import lombok.Builder;
 import lombok.Value;
 
@@ -9,5 +10,5 @@ public class UserDto {
     Long id;
     String login;
     String name;
-    Integer roleId;
+    UserRole userRole;
 }

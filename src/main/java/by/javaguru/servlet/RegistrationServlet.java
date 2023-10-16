@@ -33,7 +33,7 @@ public class RegistrationServlet extends HttpServlet {
                 .login(req.getParameter("email"))
                 .name(req.getParameter("name"))
                 .password(req.getParameter("password"))
-                .roleId(1)
+                .roleId(1) // TODO : fix
                 .build();
 
         try {

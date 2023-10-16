@@ -1,7 +1,7 @@
 package by.javaguru.servlet;
 
+import by.javaguru.dto.UserBoardGameDto;
 import by.javaguru.dto.UserDto;
-import by.javaguru.entity.BoardGame;
 import by.javaguru.service.BoardGameService;
 import by.javaguru.util.JspHelper;
 import jakarta.servlet.ServletException;
@@ -25,7 +25,7 @@ public class AccountServlet extends HttpServlet {
         HttpSession session = req.getSession();
         UserDto user = (UserDto) session.getAttribute("user");
 
-        List<BoardGame> games = boardGameService.findUserGamesById(user.getId());
+        List<UserBoardGameDto> games = boardGameService.findUserGamesById(user.getId());
 
         req.setAttribute("games", games);
         req.getRequestDispatcher(JspHelper.getPath("account"))

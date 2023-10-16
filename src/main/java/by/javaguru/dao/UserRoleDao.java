@@ -2,7 +2,7 @@ package by.javaguru.dao;
 
 import by.javaguru.entity.UserRole;
 import by.javaguru.exception.DaoException;
-import by.javaguru.validator.HibernateUtil;
+import by.javaguru.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

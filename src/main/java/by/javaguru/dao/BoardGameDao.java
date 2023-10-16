@@ -1,16 +1,15 @@
 package by.javaguru.dao;
 
 import by.javaguru.entity.BoardGame;
+import by.javaguru.entity.UserBoardGame;
 import by.javaguru.exception.DaoException;
-import by.javaguru.validator.HibernateUtil;
+import by.javaguru.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,28 +100,17 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
         }
     }
 
-    public List<BoardGame> findUserGamesById(Long userId) {
+    // TODO : fix (wrong query)
+    public List<UserBoardGame> findUserGamesById(Long userId) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            Query<BoardGame> query = session.createQuery("SELECT BG from BoardGame BG where BG.id = :id ", BoardGame.class);
+            Query<UserBoardGame> query = session.createQuery("SELECT BG from UserBoardGame BG where BG.user.id = :id ", UserBoardGame.class);
             query.setParameter("id", userId);
-            List<BoardGame> resultList = query.getResultList();
+            List<UserBoardGame> resultList = query.getResultList();
             session.getTransaction().commit();
             return resultList;
         } catch (HibernateException e) {
             throw new DaoException(e);
         }
-    }
-
-    private static BoardGame getBoardGameFromResultSet(ResultSet resultSet) throws SQLException {
-        return BoardGame.builder()
-                .name(resultSet.getString("name"))
-                .price(resultSet.getInt("price"))
-                .year(resultSet.getShort("year"))
-                .language(resultSet.getString("language"))
-                .publisher(resultSet.getString("publisher"))
-                .minPlayers(resultSet.getShort("min_players"))
-                .maxPlayers(resultSet.getShort("max_players"))
-                .build();
     }
 }

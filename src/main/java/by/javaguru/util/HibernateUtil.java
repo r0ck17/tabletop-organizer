@@ -1,4 +1,4 @@
-package by.javaguru.validator;
+package by.javaguru.util;
 
 import by.javaguru.entity.UserBoardGame;
 import by.javaguru.entity.BoardGame;
@@ -7,7 +7,6 @@ import by.javaguru.entity.UserRole;
 import lombok.experimental.UtilityClass;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-
 
 @UtilityClass
 public class HibernateUtil {
