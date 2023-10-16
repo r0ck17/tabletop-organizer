@@ -112,15 +112,17 @@ public class UserDao implements Dao<Integer, User> {
             Optional<User> result = Optional.ofNullable(user);
             session.getTransaction().commit();
 
-            return result; // TODO : check exception
+            return result;
         }
     }
 
     public boolean addGameToUser(User user, Long boardgameId) {
+        // TODO : implement
         return false;
     }
 
     public boolean deleteGameFromUser(User user, Long boardgameId) {
+        // TODO : implement
         return false;
     }
 

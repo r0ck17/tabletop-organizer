@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class BoardGameDao implements Dao<Long, BoardGame> {
-    private SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-    private static BoardGameDao INSTANCE = new BoardGameDao();
+    private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+    private static final BoardGameDao INSTANCE = new BoardGameDao();
 
     private BoardGameDao() {
     }
@@ -100,7 +100,6 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
         }
     }
 
-    // TODO : fix (wrong query)
     public List<UserBoardGame> findUserGamesById(Long userId) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
