@@ -9,8 +9,11 @@ import by.javaguru.entity.UserRoleType;
 import by.javaguru.exception.ValidationException;
 import by.javaguru.mapper.CreateUserMapper;
 import by.javaguru.mapper.UserMapper;
+import by.javaguru.servlet.AccountServlet;
 import by.javaguru.validator.CreateUserValidator;
 import by.javaguru.validator.ValidatorResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -20,6 +23,7 @@ public class UserService {
     private final CreateUserMapper createUserMapper = CreateUserMapper.getInstance();
     private final UserMapper userMapper = UserMapper.getInstance();
     private final CreateUserValidator createUserValidator = CreateUserValidator.getInstance();
+    private final Logger logger = LoggerFactory.getLogger(AccountServlet.class);
 
     private UserService() {
     }
@@ -38,6 +42,8 @@ public class UserService {
         User user = createUserMapper.mapFrom(createUserDto);
         user.setUserRole(new UserRole(1, UserRoleType.USER)); // TODO : fix hardcode
         User savedUser = userDao.save(user);
+
+        logger.info("User {}[ID:{}] was successfully registered", user.getLogin(), user.getId());
 
         return savedUser.getId();
     }

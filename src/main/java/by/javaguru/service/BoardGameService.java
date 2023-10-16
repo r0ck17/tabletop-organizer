@@ -1,6 +1,7 @@
 package by.javaguru.service;
 
 import by.javaguru.dao.BoardGameDao;
+import by.javaguru.dao.UserBoardGameDao;
 import by.javaguru.dto.BoardGameDto;
 import by.javaguru.dto.UserBoardGameDto;
 import by.javaguru.entity.BoardGame;
@@ -16,7 +17,8 @@ public final class BoardGameService {
     private static final BoardGameDtoMapper BOARD_GAME_DTO_MAPPER = BoardGameDtoMapper.getInstance();
     private static final BoardGameMapper BOARD_GAME_MAPPER = BoardGameMapper.getInstance();
     private static final UserBoardGameMapper USER_BOARD_GAME_MAPPER = UserBoardGameMapper.getInstance();
-    private static BoardGameDao boardGameDao = BoardGameDao.getInstance();
+    private static final BoardGameDao boardGameDao = BoardGameDao.getInstance();
+    private static final UserBoardGameDao userBoardGameDao = UserBoardGameDao.getInstance();
 
     private BoardGameService() {
 
@@ -48,12 +50,12 @@ public final class BoardGameService {
 
     public List<BoardGameDto> findAll() {
         return boardGameDao.findAll().stream()
-                .map((game) -> BOARD_GAME_MAPPER.mapFrom(game))
+                .map(BOARD_GAME_MAPPER::mapFrom)
                 .toList();
     }
 
     public List<UserBoardGameDto> findUserGamesById(Long userId) {
-        return boardGameDao.findUserGamesById(userId).stream()
+        return userBoardGameDao.findUserGamesById(userId).stream()
                 .map(USER_BOARD_GAME_MAPPER::mapFrom)
                 .toList();
     }

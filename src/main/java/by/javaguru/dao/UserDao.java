@@ -8,6 +8,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,7 @@ import java.util.Optional;
 public class UserDao implements Dao<Integer, User> {
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
     private static final UserDao INSTANCE = new UserDao();
+    private final Logger logger = LoggerFactory.getLogger(UserDao.class);
 
     private UserDao() {
     }
@@ -35,6 +38,8 @@ public class UserDao implements Dao<Integer, User> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error saving User entity", e);
+            logger.debug("{}", user);
             throw new DaoException(e);
         }
     }
@@ -51,6 +56,8 @@ public class UserDao implements Dao<Integer, User> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error updating User entity", e);
+            logger.debug("{}", user);
             throw new DaoException(e);
         }
     }
@@ -69,6 +76,8 @@ public class UserDao implements Dao<Integer, User> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error deleting User entity", e);
+            logger.debug("{}", id);
             throw new DaoException(e);
         }
     }
@@ -82,6 +91,8 @@ public class UserDao implements Dao<Integer, User> {
 
             return Optional.ofNullable(user);
         } catch (HibernateException e) {
+            logger.error("Error finding User entity", e);
+            logger.debug("{}", id);
             throw new DaoException(e);
         }
     }
@@ -95,6 +106,7 @@ public class UserDao implements Dao<Integer, User> {
 
             return users;
         } catch (HibernateException e) {
+            logger.error("Error finding all User entities", e);
             throw new DaoException(e);
         }
     }
@@ -113,6 +125,9 @@ public class UserDao implements Dao<Integer, User> {
             session.getTransaction().commit();
 
             return result;
+        } catch (HibernateException e) {
+            logger.error("Error finding User by email and password", e);
+            throw new DaoException(e);
         }
     }
 

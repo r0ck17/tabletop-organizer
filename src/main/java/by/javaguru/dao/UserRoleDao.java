@@ -7,13 +7,16 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UserRoleDao implements Dao<Integer, UserRole> {
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-    private static UserRoleDao INSTANCE = new UserRoleDao();
+    private static final UserRoleDao INSTANCE = new UserRoleDao();
+    private final Logger logger = LoggerFactory.getLogger(UserRoleDao.class);
 
     private UserRoleDao() {
     }
@@ -36,6 +39,8 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error saving UserRole entity", e);
+            logger.debug("{}", userRole);
             throw new DaoException(e);
         }
     }
@@ -52,6 +57,8 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error updating UserRole entity", e);
+            logger.debug("{}", userRole);
             throw new DaoException(e);
         }
     }
@@ -70,6 +77,8 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error deleting UserRole entity", e);
+            logger.debug("{}", id);
             throw new DaoException(e);
         }
     }
@@ -83,6 +92,8 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
 
             return Optional.ofNullable(userRole);
         } catch (HibernateException e) {
+            logger.error("Error finding BoardGame entity", e);
+            logger.debug("{}", id);
             throw new DaoException(e);
         }
     }
@@ -96,6 +107,7 @@ public class UserRoleDao implements Dao<Integer, UserRole> {
 
             return tickets;
         } catch (HibernateException e) {
+            logger.error("Error finding all UserRole entities", e);
             throw new DaoException(e);
         }
     }

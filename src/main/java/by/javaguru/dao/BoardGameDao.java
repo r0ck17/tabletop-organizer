@@ -1,14 +1,14 @@
 package by.javaguru.dao;
 
 import by.javaguru.entity.BoardGame;
-import by.javaguru.entity.UserBoardGame;
 import by.javaguru.exception.DaoException;
 import by.javaguru.util.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +16,7 @@ import java.util.Optional;
 public class BoardGameDao implements Dao<Long, BoardGame> {
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
     private static final BoardGameDao INSTANCE = new BoardGameDao();
+    private final Logger logger = LoggerFactory.getLogger(BoardGameDao.class);
 
     private BoardGameDao() {
     }
@@ -36,6 +37,8 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error saving BoardGame entity", e);
+            logger.debug("{}", boardgame);
             throw new DaoException(e);
         }
     }
@@ -52,6 +55,8 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error updating BoardGame entity", e);
+            logger.debug("{}", boardgame);
             throw new DaoException(e);
         }
     }
@@ -70,6 +75,8 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
             if (transaction != null) {
                 transaction.rollback();
             }
+            logger.error("Error deleting BoardGame entity", e);
+            logger.debug("{}", id);
             throw new DaoException(e);
         }
     }
@@ -83,6 +90,8 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
 
             return Optional.ofNullable(boardGame);
         } catch (HibernateException e) {
+            logger.error("Error finding BoardGame entity", e);
+            logger.debug("{}", id);
             throw new DaoException(e);
         }
     }
@@ -96,19 +105,7 @@ public class BoardGameDao implements Dao<Long, BoardGame> {
 
             return boardGames;
         } catch (HibernateException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    public List<UserBoardGame> findUserGamesById(Long userId) {
-        try (Session session = sessionFactory.getCurrentSession()) {
-            session.beginTransaction();
-            Query<UserBoardGame> query = session.createQuery("SELECT BG from UserBoardGame BG where BG.user.id = :id ", UserBoardGame.class);
-            query.setParameter("id", userId);
-            List<UserBoardGame> resultList = query.getResultList();
-            session.getTransaction().commit();
-            return resultList;
-        } catch (HibernateException e) {
+            logger.error("Error finding all BoardGame entities", e);
             throw new DaoException(e);
         }
     }
