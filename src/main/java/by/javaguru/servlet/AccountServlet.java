@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 import static by.javaguru.util.UrlPath.ACCOUNT;
 
 @WebServlet(ACCOUNT)
+@Slf4j
 public class AccountServlet extends HttpServlet {
     private static final BoardGameService boardGameService = BoardGameService.getInstance();
 
@@ -27,6 +29,7 @@ public class AccountServlet extends HttpServlet {
 
         List<UserBoardGameDto> games = boardGameService.findUserGamesById(user.getId());
 
+        log.info("User {}[ID:{}] navigated to the '{}']", user.getLogin(), user.getId(), ACCOUNT);
         req.setAttribute("games", games);
         req.getRequestDispatcher(JspHelper.getPath("account"))
                 .forward(req, resp);
