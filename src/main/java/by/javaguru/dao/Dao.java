@@ -5,8 +5,8 @@ import java.util.Optional;
 
 public interface Dao<K, E> {
     E save(E entity);
-    boolean update(E entity); // // TODO: make method remove void
-    boolean delete(K id); // TODO: make method remove void
+    boolean update(E entity);
+    boolean delete(K id);
     Optional<E> findById(K id);
     List<E> findAll();
 }
