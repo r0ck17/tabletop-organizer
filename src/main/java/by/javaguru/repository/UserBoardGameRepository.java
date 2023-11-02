@@ -1,4 +1,4 @@
-package by.javaguru.dao;
+package by.javaguru.repository;
 
 import by.javaguru.entity.BoardGame;
 import by.javaguru.entity.UserBoardGame;
@@ -11,20 +11,22 @@ import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class UserBoardGameDao {
-    private static final UserBoardGameDao INSTANCE = new UserBoardGameDao();
-    private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-    private final Logger logger = LoggerFactory.getLogger(UserBoardGameDao.class);
+public class UserBoardGameRepository extends BaseRepository<Long, UserBoardGame> {
+    private static final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+    private static final UserBoardGameRepository INSTANCE = new UserBoardGameRepository(sessionFactory.getCurrentSession());
+    private final Logger logger = LoggerFactory.getLogger(UserBoardGameRepository.class);
 
-    private UserBoardGameDao() {
+    public UserBoardGameRepository(EntityManager entityManager) {
+        super(entityManager, UserBoardGame.class);
     }
 
-    public static UserBoardGameDao getInstance() {
+    public static UserBoardGameRepository getInstance() {
         return INSTANCE;
     }
 

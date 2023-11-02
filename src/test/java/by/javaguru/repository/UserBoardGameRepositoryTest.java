@@ -1,4 +1,4 @@
-package by.javaguru.dao;
+package by.javaguru.repository;
 
 import by.javaguru.entity.BoardGame;
 import by.javaguru.entity.UserBoardGame;
@@ -12,22 +12,22 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UserBoardGameDaoTest {
-    private UserBoardGameDao userBoardGameDao = UserBoardGameDao.getInstance();
+public class UserBoardGameRepositoryTest {
+    private UserBoardGameRepository userBoardGameRepository = UserBoardGameRepository.getInstance();
 
     @Test
     void getBoardGamesCountTest() {
-        Map<BoardGame, Long> gamesCount = userBoardGameDao.getBoardGamesCount();
+        Map<BoardGame, Long> gamesCount = userBoardGameRepository.getBoardGamesCount();
 
         assertThat(gamesCount).hasSize(3);
 
-        assertThat(gamesCount.values()).containsExactly(1L, 2L, 1L);
+        assertThat(gamesCount.values()).contains(1L, 2L, 1L);
     }
 
     @Test
     void findUserGamesById() {
         Long userId = 2L;
-        List<UserBoardGame> userGamesById = userBoardGameDao.findUserGamesById(userId);
+        List<UserBoardGame> userGamesById = userBoardGameRepository.findUserGamesById(userId);
 
         assertThat(userGamesById).hasSize(2);
     }
