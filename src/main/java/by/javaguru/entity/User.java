@@ -36,5 +36,6 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "role_id")
+    @Audited
     private UserRole userRole;
 }

@@ -8,6 +8,7 @@ import org.hibernate.envers.Audited;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,10 +30,12 @@ public class UserBoardGame {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @Audited
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "boardgame_id")
+    @Audited
     private BoardGame boardGame;
 
     @Column(name = "price")
@@ -41,3 +44,5 @@ public class UserBoardGame {
     @Column(name = "purchase_date")
     private LocalDate purchaseDate;
 }
+
+

@@ -1,8 +1,8 @@
 package by.javaguru.util;
 
-import by.javaguru.entity.UserBoardGame;
 import by.javaguru.entity.BoardGame;
 import by.javaguru.entity.User;
+import by.javaguru.entity.UserBoardGame;
 import by.javaguru.entity.UserRole;
 import lombok.experimental.UtilityClass;
 import org.hibernate.SessionFactory;

@@ -53,7 +53,9 @@ public class UserBoardGameDao {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             Map<BoardGame, Long> games = session.createQuery(
-                    "SELECT bg.boardGame, count(bg) FROM UserBoardGame bg GROUP BY bg.boardGame",
+                            """
+                                    SELECT bg, count(*) FROM UserBoardGame ubg JOIN ubg.boardGame bg GROUP BY bg
+                                    """,
                             Tuple.class)
                     .getResultStream()
                     .collect(Collectors.toMap(
