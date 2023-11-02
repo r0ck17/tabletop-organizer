@@ -4,7 +4,6 @@ import by.javaguru.entity.BoardGame;
 import by.javaguru.entity.UserBoardGame;
 import by.javaguru.exception.DaoException;
 import by.javaguru.util.HibernateUtil;
-import jakarta.persistence.Tuple;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,6 +11,7 @@ import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Tuple;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

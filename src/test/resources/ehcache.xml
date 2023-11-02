@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="false">
+
+<!--    <diskStore path="java.io.tmpdir/ehcache"/>-->
+
+    <cache name="boardGame" maxEntriesLocalHeap="1000"
+           timeToIdleSeconds="15" timeToLiveSeconds="30">
+        <persistence strategy="localTempSwap" />
+    </cache>
+
+    <cache name="userBoardGame" maxEntriesLocalHeap="1000"
+           timeToIdleSeconds="20" timeToLiveSeconds="40">
+        <persistence strategy="localTempSwap" />
+    </cache>
+
+</ehcache>
+
+        <!-- Использовался материал с https://www.digitalocean.com/community/tutorials/hibernate-ehcache-hibernate-second-level-cache-->
+        <!--   Про hibernate-ehache и jcache - https://northcoder.com/post/setting-up-hibernate-with-jcache-an/ -->
+
+<!--    &lt;!&ndash; Настройки провайдера кэша &ndash;&gt;-->
+<!--    <defaultCache maxEntriesLocalHeap="1000"-->
+<!--                  timeToIdleSeconds="10"-->
+<!--                  timeToLiveSeconds="20"-->
+<!--                  memoryStoreEvictionPolicy="LRU">-->
+<!--        <persistence strategy="localTempSwap"/>-->
+<!--    </defaultCache>-->
+
+<!--    &lt;!&ndash; Определение кэшей &ndash;&gt;-->
+<!--    <cache name="com.example.EntityCache"-->
+<!--           maxEntriesLocalHeap="1000"-->
+<!--           timeToIdleSeconds="10"-->
+<!--           timeToLiveSeconds="20"-->
+<!--           memoryStoreEvictionPolicy="LRU">-->
+<!--    </cache>-->
+
+<!--    &lt;!&ndash; Конфигурация Hibernate &ndash;&gt;-->
+<!--    <cache name="org.hibernate.cache.spi.UpdateTimestampsCache"-->
+<!--           maxEntriesLocalHeap="1000">-->
+<!--        <persistence strategy="localTempSwap"/>-->
+<!--    </cache>-->
+
+<!--    <cache name="org.hibernate.cache.internal.StandardQueryCache"-->
+<!--           maxEntriesLocalHeap="1000"-->
+<!--           timeToLiveSeconds="20">-->
+<!--        <persistence strategy="localTempSwap"/>-->
+<!--    </cache>-->

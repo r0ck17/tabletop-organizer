@@ -1,15 +1,20 @@
 package by.javaguru.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Data
 @Builder
@@ -17,6 +22,9 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 @Entity
+@Table(name = "boardgame")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "boardGame")
+@Audited
 public class BoardGame {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
