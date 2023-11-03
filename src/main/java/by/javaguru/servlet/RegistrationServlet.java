@@ -1,7 +1,6 @@
 package by.javaguru.servlet;
 
 import by.javaguru.dto.CreateUserDto;
-import by.javaguru.exception.ValidationException;
 import by.javaguru.service.UserService;
 import by.javaguru.util.JspHelper;
 import jakarta.servlet.ServletException;
@@ -10,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 
 import static by.javaguru.util.UrlPath.ACCOUNT;
@@ -37,8 +37,8 @@ public class RegistrationServlet extends HttpServlet {
         try {
             userService.create(createUserDto);
             resp.sendRedirect(ACCOUNT);
-        } catch (ValidationException e) {
-            req.setAttribute("errors", e.getErrors());
+        } catch (ConstraintViolationException e) {
+            req.setAttribute("errors", e.getConstraintViolations());
             doGet(req, resp);
         }
     }

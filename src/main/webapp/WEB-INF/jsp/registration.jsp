@@ -7,11 +7,11 @@
 <body>
 <form method="post" action="${pageContext.request.contextPath}/registration">
     <label for="email">Email</label>
-    <input type="text" name="email" id="email" required><br>
+    <input type="text" name="email" id="email"><br>
     <label for="name">Имя</label>
-    <input type="text" name="name" id="name" required><br>
+    <input type="text" name="name" id="name"><br>
     <label for="password">Пароль</label>
-    <input type="password" name="password" id="password" required><br>
+    <input type="password" name="password" id="password"><br>
     <button type="submit">Зарегистрироваться</button>
 </form>
 <c:if test="${not empty requestScope.errors}">

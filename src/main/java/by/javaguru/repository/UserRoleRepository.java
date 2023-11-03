@@ -6,15 +6,13 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
-
 public class UserRoleRepository extends BaseRepository<Integer, UserRole> {
     private static final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
-    private static final UserRoleRepository INSTANCE = new UserRoleRepository(sessionFactory.getCurrentSession());
+    private static final UserRoleRepository INSTANCE = new UserRoleRepository();
     private final Logger logger = LoggerFactory.getLogger(UserRoleRepository.class);
 
-    public UserRoleRepository(EntityManager entityManager) {
-        super(entityManager, UserRole.class);
+    public UserRoleRepository() {
+        super(UserRole.class);
     }
 
     public static UserRoleRepository getInstance() {
