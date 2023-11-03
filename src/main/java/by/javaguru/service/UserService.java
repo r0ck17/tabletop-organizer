@@ -9,7 +9,6 @@ import by.javaguru.mapper.CreateUserMapper;
 import by.javaguru.mapper.UserMapper;
 import by.javaguru.repository.UserRepository;
 import by.javaguru.servlet.AccountServlet;
-import by.javaguru.validator.CreateUserValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,6 @@ public class UserService {
     private final UserRepository userRepository = UserRepository.getInstance();
     private final CreateUserMapper createUserMapper = CreateUserMapper.getInstance();
     private final UserMapper userMapper = UserMapper.getInstance();
-    private final CreateUserValidator createUserValidator = CreateUserValidator.getInstance();
     private final Logger logger = LoggerFactory.getLogger(AccountServlet.class);
 
     private UserService() {
