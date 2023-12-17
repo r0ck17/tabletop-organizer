@@ -1,49 +1,46 @@
 package by.javaguru.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.envers.Audited;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
+@Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@Entity
 @Table(name = "boardgame")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "boardGame")
-@Audited
-public class BoardGame extends BaseEntity<Long> {
+public class BoardGame {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "name")
     private String name;
-
-    @Column(name = "price")
-    private Integer price;
 
     @Column(name = "year")
     private Short year;
 
     @Column(name = "language")
-    private String language;
+    @Enumerated(value = EnumType.STRING)
+    private Language language;
 
     @Column(name = "publisher")
     private String publisher;
 
     @Column(name = "min_players")
-    private short minPlayers;
+    private Short minPlayers;
 
     @Column(name = "max_players")
-    private short maxPlayers;
+    private Short maxPlayers;
 }

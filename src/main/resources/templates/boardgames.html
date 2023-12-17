@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Органайзер настольных игр | Личный кабинет</title>
+</head>
+<body>
+    <a th:text="'Аккаунт: ' + ${user.email}"></a>
+    <table style="text-align: center; border: 1px solid;">
+        <th>№</th>
+        <th>Название</th>
+        <th>Год </th>
+        <th>Издатель</th>
+        <th>Язык</th>
+        <th>Мин. количество игроков</th>
+        <th>Макс. количество игроков</th>
+        <th>Цена</th>
+        <th>Дата покупки</th>
+        <th>Удаление</th>
+            <tr th:each="game, stat: ${games}">
+                <td th:text="${stat.index + 1}">name</td>
+                <td th:text="${game.boardGame.name}">index</td>
+                <td th:text="${game.boardGame.year}">year</td>
+                <td th:text="${game.boardGame.publisher}">publisher</td>
+                <td th:text="${game.boardGame.language}">publisher</td>
+                <td th:text="${game.boardGame.minPlayers}">minPlayers</td>
+                <td th:text="${game.boardGame.maxPlayers}">maxPlayers</td>
+                <td th:text="${game.price}">price</td>
+                <td th:text="${game.purchaseDate}">purchaseDate</td>
+                <td>
+                    <form method="POST" th:action="@{/boardgames/{id}(id=${game.id})}">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+    </table>
+    <a th:href="@{/logout}">Выйти из аккаунта</a>
+</body>
+</html>

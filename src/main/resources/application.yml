@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tabletop_organizer
+    username: postgres
+    password: groot
+    hikari:
+      schema: tabletop
+  sql:
+    init:
+      data-locations: classpath:sql/data.sql
+      mode: always # always initialize the database
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create # Hibernate first drops existing tables and then creates new tables.
+    defer-datasource-initialization: true # If we still want to have both Hibernate automatic schema generation in conjugation with script-based schema creation and data population

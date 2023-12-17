@@ -3,14 +3,14 @@ package by.javaguru.dto;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
 @Builder
+@Data
 public class BoardGameDto {
+
     private String name;
-    private Integer price;
-    private Short year;
+    private String year;
     private String language;
     private String publisher;
-    private Short minPlayers;
-    private Short maxPlayers;
+    private String minPlayers;
+    private String maxPlayers;
 }

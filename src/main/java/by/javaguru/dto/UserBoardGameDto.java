@@ -2,14 +2,14 @@ package by.javaguru.dto;
 
 import by.javaguru.entity.BoardGame;
 import lombok.Builder;
-import lombok.Value;
-
-import java.time.LocalDate;
+import lombok.Data;
 
 @Builder
-@Value
+@Data
 public class UserBoardGameDto {
+
+    String id;
     BoardGame boardGame;
-    Integer price;
-    LocalDate purchaseDate;
+    String price;
+    String purchaseDate;
 }

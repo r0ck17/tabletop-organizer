@@ -1,34 +1,31 @@
 package by.javaguru.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-import org.hibernate.envers.Audited;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
-
+@Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
-//@Builder
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "user_role")
-@Audited
-public class UserRole extends BaseEntity<Integer> {
+public class UserRole {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Enumerated(value = EnumType.STRING)
     @Column(name = "role")
     private UserRoleType role;
-
-    public UserRole(int i, UserRoleType role) {
-        super(i);
-        this.role = role;
-    }
 }

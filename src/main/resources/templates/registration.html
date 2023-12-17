@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Органайзер настольных игр | Регистрация пользователя</title>
+</head>
+<body>
+    <form method="POST" th:action="@{/registration}">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" required>
+        <br>
+
+        <label for="password">Password</label>
+        <input type="text" id="password" name="password" required>
+        <br>
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+    <a th:href="@{/login}">Перейти на страницу входа</a>
+</body>
+</html>
