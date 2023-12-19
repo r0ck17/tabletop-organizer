@@ -44,6 +44,6 @@
 
 |     Email     | Password | Role |
 |:-------------:|:--------:|:----:|
-| user1@mail.ru |    1     | USER |
-| user2@mail.ru |    1     | USER |
-| user3@mail.ru |    1     | USER |
+| user1@mail.ru |   123    | USER |
+| user2@mail.ru |   123    | USER |
+| user3@mail.ru |   123    | USER |
