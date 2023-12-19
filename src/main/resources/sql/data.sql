@@ -1,8 +1,6 @@
-INSERT INTO tabletop.user_role (role) VALUES ('USER');
-
-INSERT INTO tabletop.users (role_id, username, email, password) VALUES (1, 'user1', 'user1@mail.ru', '1');
-INSERT INTO tabletop.users (role_id, username, email, password) VALUES (1, 'user2', 'user2@mail.ru', '1');
-INSERT INTO tabletop.users (role_id, username, email, password) VALUES (1, 'user3', 'user3@mail.ru', '1');
+INSERT INTO tabletop.users (user_role, username, email, password) VALUES ('USER', 'user1', 'user1@mail.ru', '1');
+INSERT INTO tabletop.users (user_role, username, email, password) VALUES ('USER', 'user2', 'user2@mail.ru', '1');
+INSERT INTO tabletop.users (user_role, username, email, password) VALUES ('USER', 'user3', 'user3@mail.ru', '1');
 
 INSERT INTO tabletop.boardgame (max_players, min_players, year, language, name, publisher) VALUES (5, 2, 2000, 'RU', 'Каркассон', 'Hobby World');
 INSERT INTO tabletop.boardgame (max_players, min_players, year, language, name, publisher) VALUES (4, 2, 2008,  'RU', 'Пандемия', 'Стиль жизни');
